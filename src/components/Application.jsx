@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
 import firebase from './firebase'
-import {firestore} from './firebase'
+import {firestore,auth,googleProvider} from './firebase'
 import { getIdAndData} from './utils'
+import Authentication from './Authentication'
 
 import Posts from './Posts';
 
@@ -9,51 +10,45 @@ class Application extends Component {
   state = {
     posts: [ 
     ],
+    user: null
   };
   
-  async componentDidMount(){
-    
-    const snapshot =await firestore.collection('posts').get()
-    
-    const posts = snapshot.docs.map(getIdAndData)
-    
-    this.setState({ posts});
+  subscribeToFirestore=null;
+  subscribeToAuth=null;
+  
+  
+  
+  async componentDidMount(){    
+   this.subscribeToFirestore=   firestore.collection('posts').onSnapshot(snapshot=>{
+       const posts = snapshot.docs.map(getIdAndData)
+       this.setState({ posts})
+     })
+     
+     
+   this.subscribeToAuth= auth.onAuthStateChanged((user)=>{
+     this.setState({user})
+     console.log(user)
+   })
+   
  
   }
   
-
-  handleCreate = async post => {
-    const { posts } = this.state;
-
-    const docRef = await firestore.collection('posts').add(post)
-    
-    const doc=await  docRef.get()
-    
-    const newPost= getIdAndData(doc)
-    
-    this.setState({ posts: [newPost, ...posts] });
-  };
-  
-  handleRemove= async id=>{
-
-    const posts= this.state.posts
-    
-    await firestore.doc(`posts/${id}`).delete()
-    
-    const newPosts = posts.filter(post=> post.id !== id)
-    
-    this.setState({ posts:newPosts });
-    
-
+  componentWillUnmount(){
+    this.subscribeToFirestore()
+    this.subscribeToAuth()
   }
+  
+
+
 
   render() {
-    const { posts } = this.state;
+    const { posts,user } = this.state;
 
     return (
       <main className="Application">
         <h1>Think Piece</h1>
-        <Posts posts={posts} onCreate={this.handleCreate} onRemove={this.handleRemove} />
+        <Authentication user={user}/>
+        <Posts posts={posts} />
       </main>
     );
   }
