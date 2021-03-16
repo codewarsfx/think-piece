@@ -24,6 +24,32 @@ const configObj={
   
   export const  googleProvider=new firebase.auth.GoogleAuthProvider()
   
+ 
+  
+  export const createUserProfile = async (user, otherData)=>{
+    if (!user) return;
+    const userRef = firestore.doc(`users/${user.uid}`)
+    const userProfile = await userRef.get();
+     console.log(user.photoURL)
+    if(!userProfile.exists){
+    const createdAt = new Date();
+    userRef.set({
+      createdAt,
+      email:user.email,
+      displayName:user.displayName,
+      photoURL:user.photoURL,
+      ...otherData
+    })}
+    return getUserProfile(user.uid) 
+  }
+  
+ const getUserProfile= async (uid)=>{
+   if(!uid) return;
+   const userProfileRef = firestore.doc(`users/${uid}`)
+   const userProfile= await userProfileRef.get()
+   return {uid,...userProfile.data()}
+   
+ }
   
   
   export default firebase

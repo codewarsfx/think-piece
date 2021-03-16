@@ -1,6 +1,5 @@
-import React, { Component } from 'react';
-import firebase from './firebase'
-import {firestore,auth,googleProvider} from './firebase'
+import React, { Component } from 'react'; 
+import {firestore,auth,createUserProfile} from './firebase'
 import { getIdAndData} from './utils'
 import Authentication from './Authentication'
 
@@ -25,9 +24,10 @@ class Application extends Component {
      })
      
      
-   this.subscribeToAuth= auth.onAuthStateChanged((user)=>{
-     this.setState({user})
-     console.log(user)
+   this.subscribeToAuth= auth.onAuthStateChanged(async (user)=>{
+   
+     const userProfile = await createUserProfile(user)
+     this.setState({user:userProfile})
    })
    
  
@@ -43,6 +43,7 @@ class Application extends Component {
 
   render() {
     const { posts,user } = this.state;
+ 
 
     return (
       <main className="Application">
