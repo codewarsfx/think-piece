@@ -1,6 +1,7 @@
 import  firebase from "firebase/app";
 import 'firebase/firestore'
 import 'firebase/auth'
+import 'firebase/storage'
 
 
 
@@ -24,13 +25,14 @@ const configObj={
   
   export const  googleProvider=new firebase.auth.GoogleAuthProvider()
   
+  export const storage= firebase.storage()
+  
  
   
   export const createUserProfile = async (user, otherData)=>{
     if (!user) return;
     const userRef = firestore.doc(`users/${user.uid}`)
     const userProfile = await userRef.get();
-     console.log(user.photoURL)
     if(!userProfile.exists){
     const createdAt = new Date();
     userRef.set({
@@ -46,9 +48,7 @@ const configObj={
  const getUserProfile= async (uid)=>{
    if(!uid) return;
    const userProfileRef = firestore.doc(`users/${uid}`)
-   const userProfile= await userProfileRef.get()
-   return {uid,...userProfile.data()}
-   
+   return userProfileRef
  }
   
   

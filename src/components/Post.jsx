@@ -1,9 +1,21 @@
- import React from 'react';
- import {firestore}from './firebase'
+ import React,{useContext} from 'react';
+ import {firestore}from './firebase';
+ import {userContext} from './context/userContext'
 
 import moment from 'moment';
 
 const Post = ({ title, content, user, createdAt, stars, comments,id}) => {
+  
+  const userObject= useContext(userContext)
+  
+  
+  
+  const checkIfCanDelete= (currentAuthUser,postUser) =>{
+    if(!currentAuthUser) return;
+    return currentAuthUser.uid === postUser.uid;
+  }
+
+  
   const remove = ()=> {
     firestore.doc(`posts/${id}`).delete();
   }
@@ -38,7 +50,8 @@ const Post = ({ title, content, user, createdAt, stars, comments,id}) => {
         </div>
         <div>
           <button className="star" onClick={star}>Star</button>
-          <button className="delete" onClick={remove}>Delete</button>
+          {checkIfCanDelete(userObject,user)&&(
+          <button className="delete" onClick={remove}>Delete</button>)}
         </div>
       </div>
     </article>

@@ -1,58 +1,24 @@
-import React, { Component } from 'react'; 
-import {firestore,auth,createUserProfile} from './firebase'
-import { getIdAndData} from './utils'
+import React from 'react'; 
 import Authentication from './Authentication'
-
 import Posts from './Posts';
+import {Route,Switch,Link} from 'react-router-dom'
+import  UserProfile from './UserProfile'
 
-class Application extends Component {
-  state = {
-    posts: [ 
-    ],
-    user: null
-  };
+const Application =()=>{
   
-  subscribeToFirestore=null;
-  subscribeToAuth=null;
-  
-  
-  
-  async componentDidMount(){    
-   this.subscribeToFirestore=   firestore.collection('posts').onSnapshot(snapshot=>{
-       const posts = snapshot.docs.map(getIdAndData)
-       this.setState({ posts})
-     })
-     
-     
-   this.subscribeToAuth= auth.onAuthStateChanged(async (user)=>{
-   
-     const userProfile = await createUserProfile(user)
-     this.setState({user:userProfile})
-   })
-   
- 
-  }
-  
-  componentWillUnmount(){
-    this.subscribeToFirestore()
-    this.subscribeToAuth()
-  }
-  
-
-
-
-  render() {
-    const { posts,user } = this.state;
- 
 
     return (
       <main className="Application">
-        <h1>Think Piece</h1>
-        <Authentication user={user}/>
-        <Posts posts={posts} />
+        <Link to="/"><h1>Think Piece</h1></Link>
+        <Authentication/>
+        <Switch>
+          <Route exact path='/' component={Posts}/>
+          <Route exact path='/profile' component={UserProfile}/>
+        </Switch>
+        
+     
       </main>
     );
-  }
 }
 
 export default Application;
